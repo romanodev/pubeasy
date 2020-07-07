@@ -1,6 +1,13 @@
 # pubeasy
 
- Very rudimental package to create publication-ready figures
+Very rudimental package to create publication-ready figures
+
+Install:
+
+```bash
+pip install -q --no-cache --upgrade git+https://github.com/romanodev/pubeasy.git
+```
+
 
 ```python
 from pubeasy import MakeFigure
