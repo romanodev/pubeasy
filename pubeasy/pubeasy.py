@@ -3,17 +3,20 @@ from matplotlib.pylab import *
 import os,sys
 
 LARGE = 20
-c1 = '#1f77b4'
-c2 = '#f77f0e'
-c3 = '#2ca02c'
+
 
 
 class MakeFigure(object):
 
   def __init__(self,**argv):
 
-      self.init_plotting()
+      self.init_plotting(**argv)
       self.names = []
+      self.colors = ['#1f77b4','#f77f0e','#2ca02c']
+
+  def get_color(self,i):
+
+   return self.colors[i]
 
 
   def savefigure(self,prefix = './'):
@@ -22,10 +25,11 @@ class MakeFigure(object):
 
    savefig(namefile,dpi=500)
  
-  def add_plot(self,x,y,name,marker=False):
-
-     self.names.append(name) 
-     self.ax.plot(x,y,marker = 'o' if marker else 'None') 
+  def add_plot(self,x,y,name,marker=False,**argv):
+     
+     if not name in self.names:
+      self.names.append(name) 
+     self.ax.plot(x,y,marker = 'o' if marker else 'None',color=argv.setdefault('color','k')) 
 
   def add_labels(self,x,y):
 
@@ -41,7 +45,8 @@ class MakeFigure(object):
        legend(self.names,prop=f,frameon=True)
        xticks(fontproperties=self.fonts['regular'])
        yticks(fontproperties=self.fonts['regular'])
-       grid('on',which='both')
+       if argv.setdefault('grid',False):
+        grid('on',which='both') 
 
        for child in gca().get_children(): 
         x = isinstance(child, matplotlib.text.Text)
@@ -80,7 +85,7 @@ class MakeFigure(object):
 
    rcParams['xtick.major.pad']='10'
    rcParams['mathtext.fontset'] = 'cm'
-   rcParams['lines.linewidth'] = 4
+   rcParams['lines.linewidth'] = 3
    rcParams['font.size'] = LARGE
    rcParams['xtick.labelsize'] = LARGE
    rcParams['ytick.labelsize'] = LARGE
