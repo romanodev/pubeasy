@@ -2,7 +2,7 @@ import matplotlib.font_manager as fm
 from matplotlib.pylab import *
 import os,sys
 
-LARGE = 20
+LARGE = 22
 
 
 
@@ -25,11 +25,19 @@ class MakeFigure(object):
 
    savefig(namefile,dpi=500)
  
-  def add_plot(self,x,y,name,marker=False,**argv):
+  def add_plot(self,x,y,marker=False,**argv):
      
-     if not name in self.names:
-      self.names.append(name) 
-     self.ax.plot(x,y,marker = 'o' if marker else 'None',color=argv.setdefault('color','k')) 
+     color = argv.setdefault('color','k') 
+     if 'name' in argv.keys(): 
+      name = argv['name']   
+      if not name in self.names:
+       self.names.append(name) 
+     if argv.setdefault('model','plot') == 'plot':  
+      self.ax.plot(x,y,marker = 'o' if marker else 'None',color=color,linestyle=argv.setdefault('ls','-')) 
+     elif  argv.setdefault('model','plot') == 'scatter':
+      self.ax.scatter(x,y,marker = argv.setdefault('marker','o'),c=color) 
+     elif  argv.setdefault('model','plot') == 'fill':
+      self.ax.fill_between(x,np.zeros_like(x),y,color=color) 
 
   def add_labels(self,x,y):
 
@@ -42,7 +50,8 @@ class MakeFigure(object):
 
        f = self.fonts['regular']
        f.set_size(18)
-       legend(self.names,prop=f,frameon=True)
+       if len(self.names) > 0:
+         legend(self.names,prop=f,frameon=True,bbox_to_anchor=(0.8, 0.48, 0.2, 0.2))
        xticks(fontproperties=self.fonts['regular'])
        yticks(fontproperties=self.fonts['regular'])
        if argv.setdefault('grid',False):
@@ -69,7 +78,7 @@ class MakeFigure(object):
        if 'ylim' in argv.keys():
          ylim(argv['ylim'])  
 
-       xscale(argv.setdefault('xscale','lin'))
+       yscale(argv.setdefault('yscale','linear'))
 
        if argv.setdefault('write',False):
           self.savefigure() 
@@ -80,7 +89,7 @@ class MakeFigure(object):
     #-------------------
 
 
-  def init_plotting(self,extra_x_padding = 0.0,extra_y_padding=0.0,extra_bottom_padding = 0.0,extra_top_padding=  0.0,paraview=False,square=False,delta_square = 0,presentation=False):
+  def init_plotting(self,extra_x_padding = 0.0,extra_y_padding=0.0,extra_bottom_padding = 0.02,extra_top_padding=  0.0,paraview=False,square=False,delta_square = 0,presentation=False,extra_right_padding=0):
 
 
    rcParams['xtick.major.pad']='10'
@@ -122,10 +131,8 @@ class MakeFigure(object):
    rcParams['legend.fontsize'] = 25
    rcParams['axes.linewidth'] = 1
 
-   #self.fig = figure()
-   #self.ax  = self.fig.add_subplot(1, 1,1)
 
-   self.ax = axes([0.12+extra_x_padding,0.15+extra_bottom_padding,0.78-extra_x_padding-extra_y_padding,0.75-extra_bottom_padding-extra_top_padding])
+   self.ax = axes([0.12+extra_x_padding,0.15+extra_bottom_padding,0.78-extra_x_padding-extra_right_padding,0.75-extra_bottom_padding-extra_top_padding])
    self.fonts = fonts
 
 
