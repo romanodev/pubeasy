@@ -1,6 +1,8 @@
 import matplotlib.font_manager as fm
 from matplotlib.pylab import *
 import os,sys
+import warnings
+warnings.simplefilter("ignore")
 
 LARGE = 22
 
@@ -24,20 +26,26 @@ class MakeFigure(object):
    namefile =  prefix + sys.argv[0].split('.')[0]+'.png'
 
    savefig(namefile,dpi=500)
- 
+
+
   def add_plot(self,x,y,marker=False,**argv):
      
      color = argv.setdefault('color','k') 
      if 'name' in argv.keys(): 
-      name = argv['name']   
-      if not name in self.names:
-       self.names.append(name) 
-     if argv.setdefault('model','plot') == 'plot':  
+      label = argv['name']   
+      if not label in self.names:
+       self.names.append(label)
+     else: 
+       self.names.append('_nolegend_')
+
+     if argv.setdefault('model','plot') == 'plot': 
       self.ax.plot(x,y,marker = 'o' if marker else 'None',color=color,linestyle=argv.setdefault('ls','-')) 
      elif  argv.setdefault('model','plot') == 'scatter':
       self.ax.scatter(x,y,marker = argv.setdefault('marker','o'),c=color) 
      elif  argv.setdefault('model','plot') == 'fill':
       self.ax.fill_between(x,np.zeros_like(x),y,color=color) 
+     elif  argv.setdefault('model','plot') == 'hist':
+      self.ax.hist(x,argv['n_bins'],color=color,alpha=argv['alpha']) 
 
   def add_labels(self,x,y):
 
@@ -51,9 +59,12 @@ class MakeFigure(object):
        f = self.fonts['regular']
        f.set_size(18)
        if len(self.names) > 0:
-         legend(self.names,prop=f,frameon=True,bbox_to_anchor=(0.8, 0.48, 0.2, 0.2))
+         #legend(self.names,prop=f,frameon=True,bbox_to_anchor=(0.8, 0.48, 0.2, 0.2))
+         legend(self.names,prop=f,frameon=True,ncol=1,loc=0)
        xticks(fontproperties=self.fonts['regular'])
        yticks(fontproperties=self.fonts['regular'])
+
+
        if argv.setdefault('grid',False):
         grid('on',which='both') 
 
