@@ -2,10 +2,11 @@ import matplotlib.font_manager as fm
 from matplotlib.pylab import *
 import os,sys
 import warnings
+import gzip,pickle
+
 warnings.simplefilter("ignore")
 
 LARGE = 22
-
 
 
 class MakeFigure(object):
@@ -21,19 +22,27 @@ class MakeFigure(object):
    return self.colors[i]
 
 
-  def savefigure(self,prefix = './'):
+  def savefigure(self,namefile=None,prefix = './'):
 
-   namefile =  prefix + sys.argv[0].split('.')[0]+'.png'
+   if namefile == None:
+    namefile =  prefix + sys.argv[0].split('.')[0]+'.png'
+    
 
    savefig(namefile,dpi=500)
+
+
+  def load(self,datafile):
+
+      with gzip.open(datafile + '.npz', 'rb') as f:
+          return pickle.load(f)
 
 
   def add_plot(self,x,y,marker=False,**argv):
      
      color = argv.setdefault('color','k') 
      if 'name' in argv.keys(): 
-      label = argv['name']   
-      if not label in self.names:
+       label = argv['name']   
+      #if not label in self.names:
        self.names.append(label)
      else: 
        self.names.append('_nolegend_')
@@ -59,16 +68,15 @@ class MakeFigure(object):
        f = self.fonts['regular']
        f.set_size(18)
        if len(self.names) > 0:
-         #legend(self.names,prop=f,frameon=True,bbox_to_anchor=(0.8, 0.48, 0.2, 0.2))
-         legend(self.names,prop=f,frameon=True,ncol=1,loc=0)
+            #if not '_nolegend_' in self.names: 
+            legend(self.names,prop=f,frameon=True,ncol=1,loc=argv.setdefault('loc_legend',1),facecolor='w')
        xticks(fontproperties=self.fonts['regular'])
        yticks(fontproperties=self.fonts['regular'])
 
+       #if argv.setdefault('grid',False):
+       grid('on',which='both') 
 
-       if argv.setdefault('grid',False):
-        grid('on',which='both') 
-
-       for child in gca().get_children(): 
+       for child in self.ax.get_children(): 
         x = isinstance(child, matplotlib.text.Text)
         if x:
          child.set_font_propertie = self.fonts['regular']
@@ -77,9 +85,9 @@ class MakeFigure(object):
         if x:
          child.set_font_properties = self.fonts['regular']
 
-       for label in gca().get_xticklabels():
+       for label in self.ax.get_xticklabels():
         label.set_fontproperties(self.fonts['regular'])
-       for label in gca().get_yticklabels():
+       for label in self.ax.get_yticklabels():
         label.set_fontproperties(self.fonts['regular'])
 
        xscale(argv.setdefault('xscale','linear'))
@@ -92,15 +100,16 @@ class MakeFigure(object):
        yscale(argv.setdefault('yscale','linear'))
 
        if argv.setdefault('write',False):
-          self.savefigure() 
+          self.savefigure(argv.setdefault('namefile',None)) 
        
        if argv.setdefault('show',True):
+           
         show()
       
     #-------------------
 
 
-  def init_plotting(self,extra_x_padding = 0.0,extra_y_padding=0.0,extra_bottom_padding = 0.02,extra_top_padding=  0.0,paraview=False,square=False,delta_square = 0,presentation=False,extra_right_padding=0):
+  def init_plotting(self,extra_x_padding = 0.0,extra_y_padding=0.0,extra_bottom_padding = 0.02,extra_top_padding=  0.0,paraview=False,shape='horizontal',delta_square = 0,presentation=False,extra_right_padding=0):
 
 
    rcParams['xtick.major.pad']='10'
@@ -109,12 +118,12 @@ class MakeFigure(object):
    rcParams['font.size'] = LARGE
    rcParams['xtick.labelsize'] = LARGE
    rcParams['ytick.labelsize'] = LARGE
-   if square:
-    rcParams['figure.figsize'] = [4.0, 4.0]
-   else:
+   if shape == 'horizontal':
     rcParams['figure.figsize'] = [8.0, 5.0]
-   if presentation:
-    rcParams['figure.figsize'] = [16.0, 12.0]
+   if shape == 'square' : 
+    rcParams['figure.figsize'] = [4.0, 4.0]
+   if shape=='vertical':
+    rcParams['figure.figsize'] = [5, 6]
  
 
    #load fonts----
@@ -141,6 +150,7 @@ class MakeFigure(object):
    rcParams['legend.frameon'] = False
    rcParams['legend.fontsize'] = 25
    rcParams['axes.linewidth'] = 1
+
 
 
    self.ax = axes([0.12+extra_x_padding,0.15+extra_bottom_padding,0.78-extra_x_padding-extra_right_padding,0.75-extra_bottom_padding-extra_top_padding])
