@@ -43,6 +43,9 @@ class MakeFigure(object):
             label = argv['name']
             if not label in self.names:
                 self.names.append(label)
+            else:
+                self.names.append('_nolegend_')
+
         else:
             self.names.append('_nolegend_')
 
@@ -51,6 +54,7 @@ class MakeFigure(object):
                          y,
                          marker='o' if marker else 'None',
                          color=color,
+                         linewidth = argv.setdefault('lw', 3),
                          linestyle=argv.setdefault('ls', '-'))
         elif argv.setdefault('model', 'plot') == 'scatter':
             self.ax.scatter(x,
@@ -73,17 +77,9 @@ class MakeFigure(object):
 
        f = self.fonts['regular']
        f.set_size(18)
-       if len(self.names) > 0:
-            #legend(self.names,prop=f,frameon=True,bbox_to_anchor=(0.8, 0.48, 0.2, 0.2))
-            legend(self.names, prop=f, frameon=True, ncol=1, loc=0)
-       xticks(fontproperties=self.fonts['regular'])
-       yticks(fontproperties=self.fonts['regular'])
-
-       f = self.fonts['regular']
-       f.set_size(18)
-       if len(self.names) > 0:
-            #if not '_nolegend_' in self.names: 
-            legend(self.names,prop=f,frameon=True,ncol=1,loc=argv.setdefault('loc_legend',1),facecolor='w')
+      
+       if sum([ 1 if name=='_nolegend_' else 0  for name in self.names]) < len(self.names):
+            legend(self.names, prop=f, frameon=True, ncol=1, loc=argv.setdefault('loc_legend',0))
        xticks(fontproperties=self.fonts['regular'])
        yticks(fontproperties=self.fonts['regular'])
 
@@ -100,14 +96,14 @@ class MakeFigure(object):
        if argv.setdefault('grid', False):
             grid('on', which='both')
 
-       for child in gca().get_children():
-            x = isinstance(child, matplotlib.text.Text)
-            if x:
-                child.set_font_propertie = self.fonts['regular']
-       for child in gcf().get_children():
-            x = isinstance(child, matplotlib.text.Text)
-            if x:
-                child.set_font_properties = self.fonts['regular']
+       #for child in gca().get_children():
+       #     x = isinstance(child, matplotlib.text.Text)
+       #     if x:
+       #         child.set_font_propertie = self.fonts['regular']
+       #for child in gcf().get_children():
+       #     x = isinstance(child, matplotlib.text.Text)
+       #     if x:
+       #         child.set_font_properties = self.fonts['regular']
 
        for label in gca().get_xticklabels():
             label.set_fontproperties(self.fonts['regular'])

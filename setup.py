@@ -2,7 +2,7 @@ from setuptools import setup,find_packages
 import os
 
 setup(name='pubeasy',
-      version='4',
+      version='6',
       description='A set of facilities for publication-ready figures',
       author='Giuseppe Romano',
       author_email='romanog@mit.edu',
