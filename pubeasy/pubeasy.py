@@ -9,12 +9,24 @@ warnings.simplefilter("ignore")
 LARGE = 22
 
 
+def get_fonts():
+
+     #load fonts----
+     filename = os.path.dirname(__file__) + '/fonts/cmunrm.ttf'
+     prop_regular = fm.FontProperties(fname=filename,family='serif')
+     filename = os.path.dirname(__file__) + '/fonts/cmunbx.ttf'
+     prop_bold = fm.FontProperties(fname=filename,family='serif')
+     filename = os.path.dirname(__file__) + '/fonts/cmunti.ttf'
+     prop_italic = fm.FontProperties(fname=filename,family='serif')
+     return {'regular':prop_regular,'italic':prop_italic,'bold':prop_bold}
+
+
 class MakeFigure(object):
     def __init__(self, **argv):
 
         self.init_plotting(**argv)
         self.names = []
-        self.colors = ['#1f77b4', '#f77f0e', '#2ca02c']
+        self.colors = ['#1f77b4', '#f77f0e', '#2ca02c','r']
 
     def get_color(self, i):
 
@@ -24,7 +36,6 @@ class MakeFigure(object):
 
       with gzip.open(datafile + '.npz', 'rb') as f:
           return pickle.load(f)
-
 
 
     def savefigure(self,namefile=None,prefix = './'):
